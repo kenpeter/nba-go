@@ -1,28 +1,43 @@
 /* eslint-disable no-param-reassign */
 
+// cmd ui
 import program from 'commander';
+// text similarity
 import didYouMean from 'didyoumean';
+// support async await or not
 import isAsyncSupported from 'is-async-supported';
+// Beautiful cmd text
 import chalk from 'chalk';
+
+// Like cron, only update package info
 import updateNotifier from 'update-notifier';
-
+// player or game util
 import nbaGo from './command';
+// Different color for msg
 import { error, bold, nbaRed, neonGreen } from './utils/log';
-
+// Load the json
 import pkg from '../package.json';
 
 if (!isAsyncSupported()) {
+  // It is like babel
   require('async-to-gen/register');
 }
 
+// Get package file, then notify...
 (async () => {
   await updateNotifier({
     pkg,
   }).notify({ defer: false });
 })();
 
+// Get version
 program.version(pkg.version);
 
+// e.g. nba-go player name -r
+// option: basic info
+// option: regular season
+// option: playoff
+// Help, example
 program
   .command('player <name>')
   .alias('p')
@@ -53,12 +68,19 @@ program
   `);
   })
   .action((name, option) => {
+    // Can get option.xxx
+    // nba-go player NAME -r -x -a
     if (!option.info && !option.regular && !option.playoffs) {
       option.info = true;
     }
+
+    //
     nbaGo.player(name, option);
   });
 
+// game
+// which data, yesterday, today, tomorrow
+// filter...
 program
   .command('game')
   .alias('g')
@@ -106,6 +128,7 @@ program
     nbaGo.game(option);
   });
 
+// on long option
 program.on('--help', () => {
   console.log('');
   console.log('');
@@ -135,15 +158,23 @@ program.on('--help', () => {
   console.log('');
 });
 
+// Check version from package.json
 program.option('-v --version', pkg.version);
 
+// Any cmd
+// .action
 program.command('*').action(command => {
+  // Error
   error(`Unknown command: ${bold(command)}`);
+  // cmds has list of cmd
+  // Remove * cmd
   const commandNames = program.commands
     .map(c => c._name)
     .filter(name => name !== '*');
 
+  // Single cmd match cmds
   const closeMatch = didYouMean(command, commandNames);
+
   if (closeMatch) {
     error(`Did you mean ${bold(closeMatch)} ?`);
   }
