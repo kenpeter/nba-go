@@ -1,14 +1,23 @@
+// color
 import chalk from 'chalk';
+
+// date format info
 import format from 'date-fns/format';
+// Color
 import { getMainColor } from 'nba-color';
 
+// cm and kg lib
 import { convertToCm, convertToKg } from '../../utils/convertUnit';
+// table
 import table from '../../utils/table';
+// log bold
 import { bold } from '../../utils/log';
 
+// Align center
 const alignCenter = columns =>
   columns.map(content => ({ content, hAlign: 'center', vAlign: 'center' }));
 
+// Player detail info
 const info = playerInfo => {
   const playerTable = table.basicTable();
   const {

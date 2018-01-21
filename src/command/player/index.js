@@ -17,40 +17,60 @@ const catchError = (err, apiName) => {
   process.exit(1);
 };
 
+// async func to player
 const player = async (playerName, option) => {
+  // Get new nba info
   await NBA.updatePlayers();
 
+  // Find player
   const _players = await NBA.searchPlayers(playerName);
 
+  // Array map
   pMap(
+    // Many player
     _players,
+    // Each player
     async _player => {
+      // player info
       let commonPlayerInfo;
+      // player head line
       let playerHeadlineStats;
 
       try {
+        // const for multi var
+        // Destructor
         const {
+          // player commong info
           commonPlayerInfo: _commonPlayerInfo,
+          // player headline
           playerHeadlineStats: _playerHeadlineStats,
         } = await NBA.playerInfo({
+          // wait for player info
+          // pass id
           PlayerID: _player.playerId,
         });
 
+        //
         commonPlayerInfo = _commonPlayerInfo;
         playerHeadlineStats = _playerHeadlineStats;
       } catch (err) {
         catchError(err, 'NBA.playerInfo()');
       }
 
+      // Build player info
+      // ... means destruct all params and pass in
       if (option.info) {
         playerInfo({ ...commonPlayerInfo[0], ...playerHeadlineStats[0] });
       }
 
+      // If regular season
       if (option.regular) {
         let seasonTotalsRegularSeason;
         let careerTotalsRegularSeason;
 
         try {
+          // Regular season total pt
+          // Regular season career total pt
           const {
             seasonTotalsRegularSeason: _seasonTotalsRegularSeason,
             careerTotalsRegularSeason: _careerTotalsRegularSeason,
@@ -64,9 +84,11 @@ const player = async (playerName, option) => {
           catchError(err, 'NBA.playerProfile()');
         }
 
+        // New team?
         commonPlayerInfo[0].nowTeamAbbreviation =
           commonPlayerInfo[0].teamAbbreviation;
 
+        // Final
         seasonStats({
           seasonTtpe: 'Regular Season',
           ...commonPlayerInfo[0],
@@ -75,6 +97,7 @@ const player = async (playerName, option) => {
         });
       }
 
+      // Play off
       if (option.playoffs) {
         let seasonTotalsPostSeason;
         let careerTotalsPostSeason;
